@@ -24,14 +24,14 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 WORKDIR /app
 
-# Copy from backend/ subfolder (repo root is Docker context)
-COPY backend/package*.json ./
+# Root Directory is "backend" on Railway — context is already backend/
+COPY package*.json ./
 RUN npm ci
 
-COPY backend/prisma ./prisma
+COPY prisma ./prisma
 RUN npx prisma generate
 
-COPY backend/ .
+COPY . .
 RUN npm run build
 
 EXPOSE 3000
