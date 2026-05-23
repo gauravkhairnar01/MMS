@@ -1,11 +1,21 @@
 import { Client, LocalAuth } from "whatsapp-web.js";
 import qrcode from "qrcode-terminal";
+import QRCode from "qrcode";
 import fs from "fs";
 import path from "path";
 
 let client: Client | null = null;
 let ready = false;
 let reinitTimer: ReturnType<typeof setTimeout> | null = null;
+let latestQR: string | null = null;   // raw QR string for image endpoint
+
+/** Expose latest QR as a PNG data-URL (for /qr route) */
+export async function getQRDataURL(): Promise<string | null> {
+  if (!latestQR) return null;
+  return QRCode.toDataURL(latestQR, { width: 400, margin: 2 });
+}
+
+export function isReady() { return ready; }
 
 /** Delete entire .wwebjs_auth folder so Chrome always starts fresh */
 function nukeAuthData() {
@@ -50,16 +60,19 @@ function scheduleReinit() {
 
 function startClient() {
   ready = false;
-  nukeAuthData();        // ← always wipe old/stale profile before launch
+  latestQR = null;
+  nukeAuthData();
   client = createClient();
 
   client.on("qr", (qr) => {
-    console.log("\n📱  WhatsApp QR Code — Phone ne scan karo:\n");
+    latestQR = qr;
+    console.log("\n📱  WhatsApp QR Code — scan via https://<your-app>/qr\n");
     qrcode.generate(qr, { small: true });
   });
 
   client.on("ready", () => {
     ready = true;
+    latestQR = null;
     console.log("✅  WhatsApp connected! OTP messages ready.\n");
   });
 
