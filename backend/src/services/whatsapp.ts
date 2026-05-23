@@ -42,8 +42,19 @@ function createClient(): Client {
         "--disable-dev-shm-usage",
         "--no-first-run",
         "--no-zygote",
+        "--single-process",           // ← single process = less RAM
         "--disable-extensions",
         "--disable-background-networking",
+        "--disable-background-timer-throttling",
+        "--disable-backgrounding-occluded-windows",
+        "--disable-breakpad",
+        "--disable-features=TranslateUI",
+        "--disable-ipc-flooding-protection",
+        "--disable-renderer-backgrounding",
+        "--mute-audio",
+        "--metrics-recording-only",
+        "--safebrowsing-disable-auto-update",
+        "--js-flags=--max-old-space-size=256", // ← limit JS heap to 256MB
       ],
     },
   });
